@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseBoost | Premium Social Growth Platform</title>
+  
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            },
+            accent: {
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Cashfree JS SDK v3 -->
+  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+
+  <style>
+    * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+
+  <script>
+    // Theme Initializer to prevent light/dark flash
+    (function() {
+      const savedTheme = localStorage.getItem('pulseboost_theme') || 'dark';
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased flex flex-col min-h-screen pb-20 md:pb-0">
+
+  <!-- ================= AUTH VIEW (SIGN IN / SIGN UP) ================= -->
+  <div id="view-auth" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="w-full max-w-md bg-slate-900/90 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-8 shadow-2xl space-y-6">
+      
+      <!-- Brand Logo Header -->
+      <div class="text-center space-y-2">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-violet-600 text-white mx-auto flex items-center justify-center font-bold text-xl shadow-lg shadow-emerald-500/20">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <h1 class="text-2xl font-black text-white tracking-tight">PulseBoost</h1>
+        <p class="text-xs text-slate-400">Accelerate your social audience and reach</p>
+      </div>
+
+      <!-- Auth Switcher Tabs -->
+      <div class="grid grid-cols-2 gap-1 bg-slate-950 p-1 rounded-2xl border border-slate-800/80">
+        <button id="tab-login" onclick="switchAuthTab('login')" class="py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md transition">Sign In</button>
+        <button id="tab-signup" onclick="switchAuthTab('signup')" class="py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition">Create Account</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Email Address</label>
+          <input type="email" id="login-email" required placeholder="name@company.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+          <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold py-3.5 rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+          <span>Sign In</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="form-signup" onsubmit="handleSignup(event)" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Full Name</label>
+          <input type="text" id="signup-name" required placeholder="Alex Rivera" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Email Address</label>
+          <input type="email" id="signup-email" required placeholder="alex@domain.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Mobile Phone Number</label>
+          <input type="tel" id="signup-phone" required placeholder="9876543210" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+          <input type="password" id="signup-password" minlength="6" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl text-xs transition shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2">
+          <span>Create Account</span>
+          <i class="fa-solid fa-user-plus"></i>
+        </button>
+      </form>
+
+      <!-- Quick Demo Login Button -->
+      <div class="pt-2 border-t border-slate-800 text-center">
+        <button onclick="handleDemoLogin()" type="button" class="text-xs text-slate-400 hover:text-indigo-400 font-medium transition flex items-center justify-center gap-1.5 mx-auto">
+          <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i>
+          <span>Instant Demo Client Sign In</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MAIN STORE DASHBOARD ================= -->
+  <div id="view-dashboard" class="hidden flex-col min-h-screen">
+
+    <!-- TOP DESKTOP HEADER -->
+    <header class="border-b border-slate-200 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
+      <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        
+        <!-- Logo -->
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-base shadow-md shadow-emerald-500/20">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <div>
+            <span class="font-extrabold text-base tracking-tight text-slate-900 dark:text-white block">PulseBoost</span>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Growth Storefront</span>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center space-x-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <button onclick="switchTab('store')" id="desk-nav-store" class="px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition flex items-center gap-2">
+            <i class="fa-solid fa-shop text-emerald-500"></i> Store
+          </button>
+          <button onclick="switchTab('orders')" id="desk-nav-orders" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-2">
+            <i class="fa-solid fa-receipt"></i> Orders
+          </button>
+          <button onclick="switchTab('account')" id="desk-nav-account" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-2">
+            <i class="fa-solid fa-user"></i> Account
+          </button>
+        </nav>
+
+        <!-- Theme Toggle & Profile Info -->
+        <div class="flex items-center space-x-3">
+          
+          <!-- Theme Switcher Button -->
+          <button onclick="toggleTheme()" id="btn-theme-toggle" title="Toggle Light/Dark Theme" class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center hover:border-slate-300 dark:hover:border-slate-700 transition">
+            <i id="theme-icon" class="fa-solid fa-moon"></i>
+          </button>
+
+          <!-- User Display Badge -->
+          <div class="hidden sm:flex items-center space-x-2 pl-2 border-l border-slate-200 dark:border-slate-800">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center text-xs border border-emerald-500/20">
+              <span id="user-avatar-initial">U</span>
+            </div>
+            <div class="text-left leading-tight">
+              <span id="user-display-name" class="block text-xs font-bold text-slate-900 dark:text-white">User</span>
+              <span id="user-display-email" class="block text-[10px] text-slate-500 dark:text-slate-400">user@domain.com</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </header>
+
+    <!-- MAIN BODY CONTENT -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
+
+      <!-- ================= SECTION 1: SERVICE STORE ================= -->
+      <section id="section-store" class="space-y-6">
+        
+        <!-- Hero Banner -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950 p-6 md:p-8 text-white border border-slate-800/80 shadow-2xl">
+          <div class="relative z-10 max-w-xl space-y-3">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-400 text-[11px] font-semibold">
+              <i class="fa-solid fa-shield-check text-emerald-400"></i> 100% Safe & Instant Delivery Guaranteed
+            </div>
+            <h2 class="text-2xl md:text-3xl font-black tracking-tight leading-tight bg-gradient-to-r from-white via-slate-100 to-emerald-300 bg-clip-text text-transparent">Elevate Your Social Presence Instantly</h2>
+            <p class="text-slate-300 text-xs md:text-sm leading-relaxed">Supercharge your reach, engagement, and authority across all major social networks with premium, high-retention growth solutions.</p>
+          </div>
+          <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute right-32 -top-10 w-48 h-48 bg-violet-600/15 rounded-full blur-3xl pointer-events-none"></div>
+        </div>
+
+        <!-- Search & Category Filters -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          
+          <!-- Search Bar -->
+          <div class="relative flex-grow max-w-md">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+            <input type="text" id="service-search" oninput="filterServices()" placeholder="Search growth services..." class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 shadow-sm">
+          </div>
+
+          <!-- Platform Filter Chips -->
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0" id="platform-chips">
+            <button onclick="filterByPlatform('ALL')" class="platform-chip px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition whitespace-nowrap shadow-sm" data-platform="ALL">All Platforms</button>
+            <button onclick="filterByPlatform('YouTube')" class="platform-chip px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white transition whitespace-nowrap" data-platform="YouTube"><i class="fa-brands fa-youtube text-red-500 mr-1.5"></i>YouTube</button>
+            <button onclick="filterByPlatform('Instagram')" class="platform-chip px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white transition whitespace-nowrap" data-platform="Instagram"><i class="fa-brands fa-instagram text-pink-500 mr-1.5"></i>Instagram</button>
+            <button onclick="filterByPlatform('Twitter/X')" class="platform-chip px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white transition whitespace-nowrap" data-platform="Twitter/X"><i class="fa-brands fa-x-twitter text-slate-800 dark:text-slate-200 mr-1.5"></i>Twitter/X</button>
+            <button onclick="filterByPlatform('Telegram')" class="platform-chip px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white transition whitespace-nowrap" data-platform="Telegram"><i class="fa-brands fa-telegram text-sky-400 mr-1.5"></i>Telegram</button>
+          </div>
+
+        </div>
+
+        <!-- Services Grid -->
+        <div id="services-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="col-span-full py-16 text-center text-slate-400 text-xs">Loading available growth services...</div>
+        </div>
+
+      </section>
+
+      <!-- ================= SECTION 2: MY ORDERS ================= -->
+      <section id="section-orders" class="space-y-6 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Order History & Live Tracking</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Track delivery status for your active campaigns</p>
+          </div>
+          <button onclick="refreshOrders()" class="text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-xl font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+            <i class="fa-solid fa-rotate mr-1"></i> Refresh
+          </button>
+        </div>
+
+        <!-- Orders Table Card -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold">
+                <tr>
+                  <th class="py-3.5 px-4">Order ID</th>
+                  <th class="py-3.5 px-4">Service</th>
+                  <th class="py-3.5 px-4">Target Link</th>
+                  <th class="py-3.5 px-4">Amount</th>
+                  <th class="py-3.5 px-4">Payment Status</th>
+                  <th class="py-3.5 px-4 text-right">Date</th>
+                </tr>
+              </thead>
+              <tbody id="user-orders-body" class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                <tr><td colspan="6" class="py-12 text-center text-slate-400">No orders found.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 3: ACCOUNT & SETTINGS ================= -->
+      <section id="section-account" class="space-y-6 hidden">
+        
+        <div>
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">Account Settings & Security</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Manage your credentials, password security, and system preferences</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- User Profile Overview Card -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-6 shadow-sm md:col-span-2">
+            
+            <div class="flex items-center space-x-4 border-b border-slate-100 dark:border-slate-800 pb-5">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white font-black text-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <span id="account-avatar-large">U</span>
+              </div>
+              <div>
+                <h3 id="account-name" class="font-extrabold text-base text-slate-900 dark:text-white">User Name</h3>
+                <p id="account-email" class="text-xs text-slate-500 dark:text-slate-400">user@example.com</p>
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20">Active Account</span>
+                  <span class="px-2.5 py-0.5 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 text-[10px] font-bold border border-violet-500/20"><i class="fa-solid fa-shield-check mr-1"></i>Secure Session</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <span class="text-[10px] font-bold uppercase text-slate-400">Total Orders Placed</span>
+                <span id="account-total-orders" class="block text-xl font-extrabold text-slate-900 dark:text-white mt-1">0</span>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <span class="text-[10px] font-bold uppercase text-slate-400">Total Spent</span>
+                <span id="account-total-spent" class="block text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">₹0</span>
+              </div>
+            </div>
+
+            <!-- Security & Password Card -->
+            <div class="bg-slate-50 dark:bg-slate-950/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-key text-base"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-bold text-slate-900 dark:text-white">Security & Password</h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Update your account password regularly</p>
+                  </div>
+                </div>
+                <button onclick="openChangePasswordModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-violet-600 hover:bg-violet-500 text-white transition shadow-sm flex items-center gap-1.5">
+                  <i class="fa-solid fa-lock-keyhole"></i>
+                  <span>Change Password</span>
+                </button>
+              </div>
+              <div id="password-status-badge" class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 pt-1">
+                <i class="fa-solid fa-circle-info text-emerald-500"></i>
+                <span>Password last changed: <strong id="lbl-last-password-change" class="text-slate-700 dark:text-slate-300 font-semibold">Protected Session</strong></span>
+              </div>
+            </div>
+
+            <!-- Developer Tools Launcher -->
+            <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+              <div>
+                <h4 class="text-xs font-bold text-slate-900 dark:text-white">Developer Webhook Agent Simulator</h4>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Test Cashfree payment verification callbacks</p>
+              </div>
+              <button onclick="openWebhookModal()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                <i class="fa-solid fa-code text-emerald-500 mr-1.5"></i> Open Simulator
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Preferences & Actions Card -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-6 shadow-sm flex flex-col justify-between">
+            <div class="space-y-4">
+              <h3 class="font-bold text-sm text-slate-900 dark:text-white">Preferences</h3>
+              
+              <!-- Mode Selection -->
+              <div class="space-y-2">
+                <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400">Appearance Theme</label>
+                <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl border border-slate-200 dark:border-slate-800">
+                  <button onclick="setThemeMode('light')" id="theme-btn-light" class="py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-sun text-amber-500"></i> Light
+                  </button>
+                  <button onclick="setThemeMode('dark')" id="theme-btn-dark" class="py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-moon text-violet-400"></i> Dark
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Logout Button -->
+            <button onclick="handleLogout()" class="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold py-3 rounded-2xl text-xs transition border border-rose-500/20 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-power-off"></i> Sign Out
+            </button>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION FOOTER -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 px-6 py-2">
+      <div class="flex items-center justify-around">
+        <button onclick="switchTab('store')" id="mob-nav-store" class="flex flex-col items-center gap-1 text-emerald-600 dark:text-emerald-400 transition">
+          <i class="fa-solid fa-shop text-base"></i>
+          <span class="text-[10px] font-bold">Store</span>
+        </button>
+        <button onclick="switchTab('orders')" id="mob-nav-orders" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition">
+          <i class="fa-solid fa-receipt text-base"></i>
+          <span class="text-[10px] font-bold">Orders</span>
+        </button>
+        <button onclick="switchTab('account')" id="mob-nav-account" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition">
+          <i class="fa-solid fa-user text-base"></i>
+          <span class="text-[10px] font-bold">Account</span>
+        </button>
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- ================= CHANGE PASSWORD MODAL ================= -->
+  <div id="pwd-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
+      
+      <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-violet-500/10 text-violet-500 flex items-center justify-center font-bold text-xs">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Change Account Password</h3>
+        </div>
+        <button onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Alert Notification Banner -->
+      <div id="pwd-alert" class="hidden p-3 rounded-xl text-xs font-semibold border flex items-center gap-2"></div>
+
+      <form onsubmit="handleChangePassword(event)" class="space-y-4">
+        
+        <!-- Current Password -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Current Password</label>
+          <div class="relative">
+            <input type="password" id="pwd-current" required placeholder="Enter current password" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3.5 pr-10 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-violet-500">
+            <button type="button" onclick="togglePasswordVisibility('pwd-current', 'eye-curr')" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs">
+              <i id="eye-curr" class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- New Password -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">New Password</label>
+          <div class="relative">
+            <input type="password" id="pwd-new" oninput="checkPasswordStrength(this.value)" required minlength="6" placeholder="Enter new password (min 6 chars)" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3.5 pr-10 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-violet-500">
+            <button type="button" onclick="togglePasswordVisibility('pwd-new', 'eye-new')" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs">
+              <i id="eye-new" class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+
+          <!-- Password Strength Indicator Bar -->
+          <div class="mt-2 space-y-1">
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="text-slate-400 font-medium">Strength:</span>
+              <span id="pwd-strength-label" class="font-bold text-slate-500">Enter Password</span>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden flex">
+              <div id="pwd-strength-bar" class="h-full bg-rose-500 w-0 transition-all duration-300"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Confirm New Password -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Confirm New Password</label>
+          <div class="relative">
+            <input type="password" id="pwd-confirm" required placeholder="Re-enter new password" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3.5 pr-10 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-violet-500">
+            <button type="button" onclick="togglePasswordVisibility('pwd-confirm', 'eye-conf')" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs">
+              <i id="eye-conf" class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-submit-pwd" class="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold py-3.5 rounded-xl text-xs transition shadow-md shadow-violet-600/20 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-shield-check"></i>
+          <span>Update Account Password</span>
+        </button>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ================= CHECKOUT / CASHFREE ORDER MODAL ================= -->
+  <div id="checkout-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl space-y-4">
+      
+      <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-white">Checkout with Cashfree</h3>
+        <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-1 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <span id="modal-service-platform" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">Platform</span>
+        <h4 id="modal-service-title" class="text-xs font-bold text-slate-900 dark:text-white">Package Title</h4>
+        <div class="flex justify-between items-center pt-2">
+          <span id="modal-service-speed" class="text-[10px] text-slate-500 dark:text-slate-400">Delivery Speed</span>
+          <span id="modal-service-price" class="text-xs font-black text-emerald-600 dark:text-emerald-400">₹0</span>
+        </div>
+      </div>
+
+      <form onsubmit="initiateCashfreePayment(event)" class="space-y-3">
+        <input type="hidden" id="modal-service-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Target Channel / Post Link</label>
+          <input type="url" id="order-target-link" required placeholder="https://instagram.com/yourhandle" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Phone Number (Required for Payment)</label>
+          <input type="tel" id="order-phone" required placeholder="9876543210" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <button type="submit" id="btn-submit-order" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl text-xs transition shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-lock text-[10px]"></i> Pay Securely via Cashfree
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ================= CASHFREE WEBHOOK AGENT SIMULATOR MODAL ================= -->
+  <div id="webhook-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
+      
+      <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-bolt text-emerald-500 text-sm"></i>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Cashfree Webhook Simulator</h3>
+        </div>
+        <button onclick="closeWebhookModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Simulate Cashfree server-to-server HTTP webhook callbacks (`PAYMENT_SUCCESS_WEBHOOK`) to verify automated order fulfillment in Firebase.</p>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Select Active Pending Order</label>
+          <select id="webhook-order-select" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+            <option value="">No pending orders available</option>
+          </select>
+        </div>
+
+        <button onclick="dispatchWebhookEvent()" id="btn-dispatch-webhook" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-paper-plane"></i> Dispatch PAYMENT_SUCCESS Webhook
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FIREBASE & CORE APP LOGIC MODULE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, push, set, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDQFYdl9SRgylZEdLNIUbAg4LtB7E6_Uo4",
+      authDomain: "school-88506.firebaseapp.com",
+      databaseURL: "https://school-88506-default-rtdb.firebaseio.com",
+      projectId: "school-88506",
+      storageBucket: "school-88506.firebasestorage.app",
+      messagingSenderId: "220132241066",
+      appId: "1:220132241066:web:8862c6f824fdc933d4ead3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let allServices = {};
+    let allOrders = {};
+    let activePlatform = "ALL";
+    let currentUser = null;
+
+    // Load Default Mock Services if database is empty
+    const defaultServices = {
+      "svc_yt_01": { title: "YouTube High Retention Views", platform: "YouTube", price: 299, quantity: "1,000 Views" },
+      "svc_yt_02": { title: "YouTube Organic Subscribers", platform: "YouTube", price: 799, quantity: "500 Subs" },
+      "svc_ig_01": { title: "Instagram Active Followers", platform: "Instagram", price: 199, quantity: "1,000 Followers" },
+      "svc_ig_02": { title: "Instagram Reel Likes & Reach", platform: "Instagram", price: 99, quantity: "2,500 Likes" },
+      "svc_tw_01": { title: "Twitter/X Premium Followers", platform: "Twitter/X", price: 349, quantity: "500 Followers" },
+      "svc_tg_01": { title: "Telegram Channel Members", platform: "Telegram", price: 249, quantity: "1,000 Members" }
+    };
+
+    // Initialize App & Auth Session
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedUser = localStorage.getItem("pulseboost_user");
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        showDashboard();
+      } else {
+        showAuthPage();
+      }
+      window.updateThemeUI();
+    });
+
+    // Realtime Database Listeners
+    onValue(ref(db, "paid_services"), (snapshot) => {
+      const val = snapshot.val();
+      allServices = val && Object.keys(val).length ? val : defaultServices;
+      window.renderServicesGrid();
+    });
+
+    onValue(ref(db, "orders"), (snapshot) => {
+      allOrders = snapshot.val() || {};
+      window.renderUserOrders();
+      window.updateAccountStats();
+    });
+
+    // AUTHENTICATION LOGIC
+    window.switchAuthTab = function(tab) {
+      const formLogin = document.getElementById("form-login");
+      const formSignup = document.getElementById("form-signup");
+      const tabLogin = document.getElementById("tab-login");
+      const tabSignup = document.getElementById("tab-signup");
+
+      if (tab === 'login') {
+        formLogin.classList.remove("hidden");
+        formSignup.classList.add("hidden");
+        tabLogin.className = "py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md transition";
+        tabSignup.className = "py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition";
+      } else {
+        formLogin.classList.add("hidden");
+        formSignup.classList.remove("hidden");
+        tabSignup.className = "py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md transition";
+        tabLogin.className = "py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition";
+      }
+    };
+
+    window.handleLogin = function(e) {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value;
+      const pwd = document.getElementById("login-password").value;
+      
+      currentUser = {
+        name: email.split("@")[0],
+        email: email,
+        phone: "9876543210",
+        password: pwd,
+        lastPasswordChange: "Initial Sign In"
+      };
+      localStorage.setItem("pulseboost_user", JSON.stringify(currentUser));
+      showDashboard();
+    };
+
+    window.handleSignup = function(e) {
+      e.preventDefault();
+      const name = document.getElementById("signup-name").value;
+      const email = document.getElementById("signup-email").value;
+      const phone = document.getElementById("signup-phone").value;
+      const password = document.getElementById("signup-password").value;
+
+      currentUser = { name, email, phone, password, lastPasswordChange: "Just Now" };
+      localStorage.setItem("pulseboost_user", JSON.stringify(currentUser));
+      showDashboard();
+    };
+
+    window.handleDemoLogin = function() {
+      currentUser = {
+        name: "Demo Client",
+        email: "demo.client@pulseboost.io",
+        phone: "9876543210",
+        password: "demopassword123",
+        lastPasswordChange: "Active Session"
+      };
+      localStorage.setItem("pulseboost_user", JSON.stringify(currentUser));
+      showDashboard();
+    };
+
+    window.handleLogout = function() {
+      localStorage.removeItem("pulseboost_user");
+      currentUser = null;
+      showAuthPage();
+    };
+
+    function showDashboard() {
+      document.getElementById("view-auth").classList.add("hidden");
+      document.getElementById("view-dashboard").classList.remove("hidden");
+      document.getElementById("view-dashboard").classList.add("flex");
+      
+      const initial = (currentUser.name || "U").charAt(0).toUpperCase();
+      document.getElementById("user-avatar-initial").innerText = initial;
+      document.getElementById("account-avatar-large").innerText = initial;
+
+      document.getElementById("user-display-name").innerText = currentUser.name || "User";
+      document.getElementById("user-display-email").innerText = currentUser.email || "";
+      document.getElementById("account-name").innerText = currentUser.name || "User";
+      document.getElementById("account-email").innerText = currentUser.email || "";
+
+      if (document.getElementById("lbl-last-password-change")) {
+        document.getElementById("lbl-last-password-change").innerText = currentUser.lastPasswordChange || "Protected Session";
+      }
+
+      window.renderServicesGrid();
+      window.renderUserOrders();
+      window.updateAccountStats();
+    }
+
+    function showAuthPage() {
+      document.getElementById("view-dashboard").classList.add("hidden");
+      document.getElementById("view-dashboard").classList.remove("flex");
+      document.getElementById("view-auth").classList.remove("hidden");
+    }
+
+    // THEME SWITCHER LOGIC
+    window.toggleTheme = function() {
+      const isDark = document.documentElement.classList.contains("dark");
+      setThemeMode(isDark ? 'light' : 'dark');
+    };
+
+    window.setThemeMode = function(mode) {
+      if (mode === 'dark') {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('pulseboost_theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('pulseboost_theme', 'light');
+      }
+      window.updateThemeUI();
+    };
+
+    window.updateThemeUI = function() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const themeIcon = document.getElementById("theme-icon");
+      if (themeIcon) {
+        themeIcon.className = isDark ? "fa-solid fa-moon text-violet-400" : "fa-solid fa-sun text-amber-500";
+      }
+
+      const btnLight = document.getElementById("theme-btn-light");
+      const btnDark = document.getElementById("theme-btn-dark");
+      if (btnLight && btnDark) {
+        if (isDark) {
+          btnDark.className = "py-2 rounded-xl text-xs font-bold bg-violet-600 text-white shadow-sm transition flex items-center justify-center gap-1.5";
+          btnLight.className = "py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-1.5";
+        } else {
+          btnLight.className = "py-2 rounded-xl text-xs font-bold bg-white text-slate-900 shadow-sm transition flex items-center justify-center gap-1.5";
+          btnDark.className = "py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-1.5";
+        }
+      }
+    };
+
+    // CHANGE PASSWORD MODAL & LOGIC
+    window.openChangePasswordModal = function() {
+      document.getElementById("pwd-current").value = "";
+      document.getElementById("pwd-new").value = "";
+      document.getElementById("pwd-confirm").value = "";
+      document.getElementById("pwd-alert").classList.add("hidden");
+      window.checkPasswordStrength("");
+      document.getElementById("pwd-modal").classList.remove("hidden");
+    };
+
+    window.closeChangePasswordModal = function() {
+      document.getElementById("pwd-modal").classList.add("hidden");
+    };
+
+    window.togglePasswordVisibility = function(inputId, eyeIconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(eyeIconId);
+      if (!input || !icon) return;
+
+      if (input.type === "password") {
+        input.type = "text";
+        icon.className = "fa-solid fa-eye-slash";
+      } else {
+        input.type = "password";
+        icon.className = "fa-solid fa-eye";
+      }
+    };
+
+    window.checkPasswordStrength = function(val) {
+      const bar = document.getElementById("pwd-strength-bar");
+      const label = document.getElementById("pwd-strength-label");
+      if (!bar || !label) return;
+
+      if (!val) {
+        bar.style.width = "0%";
+        bar.className = "h-full bg-rose-500 w-0 transition-all duration-300";
+        label.innerText = "Enter Password";
+        label.className = "font-bold text-slate-400";
+        return;
+      }
+
+      let score = 0;
+      if (val.length >= 6) score++;
+      if (val.length >= 10) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+
+      if (score <= 2) {
+        bar.style.width = "33%";
+        bar.className = "h-full bg-rose-500 transition-all duration-300";
+        label.innerText = "Weak Password";
+        label.className = "font-bold text-rose-500";
+      } else if (score <= 4) {
+        bar.style.width = "66%";
+        bar.className = "h-full bg-amber-500 transition-all duration-300";
+        label.innerText = "Good Password";
+        label.className = "font-bold text-amber-500";
+      } else {
+        bar.style.width = "100%";
+        bar.className = "h-full bg-emerald-500 transition-all duration-300";
+        label.innerText = "Strong Password";
+        label.className = "font-bold text-emerald-500";
+      }
+    };
+
+    window.handleChangePassword = function(e) {
+      e.preventDefault();
+      const curr = document.getElementById("pwd-current").value;
+      const newPwd = document.getElementById("pwd-new").value;
+      const confPwd = document.getElementById("pwd-confirm").value;
+      const alertBox = document.getElementById("pwd-alert");
+
+      function showAlert(msg, isSuccess = false) {
+        alertBox.classList.remove("hidden");
+        if (isSuccess) {
+          alertBox.className = "p-3 rounded-xl text-xs font-semibold border bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center gap-2";
+          alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500"></i> <span>${msg}</span>`;
+        } else {
+          alertBox.className = "p-3 rounded-xl text-xs font-semibold border bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400 flex items-center gap-2";
+          alertBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-500"></i> <span>${msg}</span>`;
+        }
+      }
+
+      // Verify current password if exists
+      if (currentUser.password && curr !== currentUser.password) {
+        showAlert("Current password is incorrect. Please try again.");
+        return;
+      }
+
+      if (newPwd.length < 6) {
+        showAlert("New password must be at least 6 characters long.");
+        return;
+      }
+
+      if (newPwd !== confPwd) {
+        showAlert("New passwords do not match. Please verify.");
+        return;
+      }
+
+      // Update Session & Local Storage
+      const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      currentUser.password = newPwd;
+      currentUser.lastPasswordChange = dateStr;
+      localStorage.setItem("pulseboost_user", JSON.stringify(currentUser));
+
+      if (document.getElementById("lbl-last-password-change")) {
+        document.getElementById("lbl-last-password-change").innerText = dateStr;
+      }
+
+      showAlert("Password successfully updated!", true);
+
+      setTimeout(() => {
+        window.closeChangePasswordModal();
+      }, 1200);
+    };
+
+    // NAVIGATION TAB LOGIC
+    window.switchTab = function(tab) {
+      const secStore = document.getElementById("section-store");
+      const secOrders = document.getElementById("section-orders");
+      const secAccount = document.getElementById("section-account");
+
+      secStore.classList.add("hidden");
+      secOrders.classList.add("hidden");
+      secAccount.classList.add("hidden");
+
+      // Reset Nav Styling
+      ["store", "orders", "account"].forEach(t => {
+        const deskBtn = document.getElementById(`desk-nav-${t}`);
+        const mobBtn = document.getElementById(`mob-nav-${t}`);
+        if (deskBtn) deskBtn.className = "px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-2";
+        if (mobBtn) mobBtn.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition";
+      });
+
+      if (tab === 'store') {
+        secStore.classList.remove("hidden");
+        document.getElementById("desk-nav-store").className = "px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition flex items-center gap-2";
+        document.getElementById("mob-nav-store").className = "flex flex-col items-center gap-1 text-emerald-600 dark:text-emerald-400 transition";
+      } else if (tab === 'orders') {
+        secOrders.classList.remove("hidden");
+        document.getElementById("desk-nav-orders").className = "px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition flex items-center gap-2";
+        document.getElementById("mob-nav-orders").className = "flex flex-col items-center gap-1 text-emerald-600 dark:text-emerald-400 transition";
+      } else if (tab === 'account') {
+        secAccount.classList.remove("hidden");
+        document.getElementById("desk-nav-account").className = "px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition flex items-center gap-2";
+        document.getElementById("mob-nav-account").className = "flex flex-col items-center gap-1 text-emerald-600 dark:text-emerald-400 transition";
+      }
+    };
+
+    // SERVICE FILTERING & RENDERING
+    window.filterByPlatform = function(platform) {
+      activePlatform = platform;
+      document.querySelectorAll(".platform-chip").forEach(btn => {
+        if (btn.dataset.platform === platform) {
+          btn.className = "platform-chip px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition whitespace-nowrap shadow-sm";
+        } else {
+          btn.className = "platform-chip px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white transition whitespace-nowrap";
+        }
+      });
+      window.renderServicesGrid();
+    };
+
+    window.filterServices = function() {
+      window.renderServicesGrid();
+    };
+
+    window.renderServicesGrid = function() {
+      const container = document.getElementById("services-grid");
+      const searchQuery = (document.getElementById("service-search")?.value || "").toLowerCase();
+
+      const keys = Object.keys(allServices).filter(k => {
+        const item = allServices[k];
+        const matchesPlatform = activePlatform === "ALL" || item.platform === activePlatform;
+        const matchesSearch = item.title.toLowerCase().includes(searchQuery) || item.platform.toLowerCase().includes(searchQuery);
+        return matchesPlatform && matchesSearch;
+      });
+
+      if (!keys.length) {
+        container.innerHTML = `<div class="col-span-full py-16 text-center text-slate-400 text-xs">No services found matching your search.</div>`;
+        return;
+      }
+
+      container.innerHTML = keys.map(k => {
+        const item = allServices[k];
+        return `
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 space-y-4 hover:border-emerald-500/50 hover:shadow-emerald-500/5 transition flex flex-col justify-between shadow-sm">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-900/40">${item.platform}</span>
+                <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i>${item.quantity || 'Fast Delivery'}</span>
+              </div>
+              <h3 class="font-bold text-sm text-slate-900 dark:text-white leading-snug">${item.title}</h3>
+            </div>
+            
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+              <div>
+                <span class="text-[10px] text-slate-400 block font-medium">Instant Price</span>
+                <span class="text-base font-black text-emerald-600 dark:text-emerald-400">₹${item.price}</span>
+              </div>
+              <button onclick="openCheckoutModal('${k}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-md shadow-emerald-600/20 flex items-center gap-1.5">
+                <span>Buy Now</span>
+                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    // CHECKOUT & CASHFREE GATEWAY
+    window.openCheckoutModal = function(id) {
+      const item = allServices[id];
+      if (!item) return;
+
+      document.getElementById("modal-service-id").value = id;
+      document.getElementById("modal-service-platform").innerText = item.platform;
+      document.getElementById("modal-service-title").innerText = item.title;
+      document.getElementById("modal-service-speed").innerText = item.quantity || "Standard Delivery";
+      document.getElementById("modal-service-price").innerText = `₹${item.price}`;
+      
+      if (currentUser && currentUser.phone) {
+        document.getElementById("order-phone").value = currentUser.phone;
+      }
+
+      document.getElementById("checkout-modal").classList.remove("hidden");
+    };
+
+    window.closeCheckoutModal = function() {
+      document.getElementById("checkout-modal").classList.add("hidden");
+    };
+
+    window.initiateCashfreePayment = function(e) {
+      e.preventDefault();
+      const svcId = document.getElementById("modal-service-id").value;
+      const targetLink = document.getElementById("order-target-link").value;
+      const phone = document.getElementById("order-phone").value;
+      const svc = allServices[svcId];
+
+      const orderKey = "ORD-" + Math.floor(100000 + Math.random() * 900000);
+      const newOrder = {
+        orderId: orderKey,
+        userEmail: currentUser.email,
+        userName: currentUser.name,
+        serviceTitle: svc.title,
+        platform: svc.platform,
+        amount: svc.price,
+        targetLink: targetLink,
+        phone: phone,
+        status: "PENDING",
+        createdAt: Date.now()
+      };
+
+      // Push to Firebase Realtime DB
+      const newRef = push(ref(db, "orders"));
+      set(newRef, newOrder).then(() => {
+        closeCheckoutModal();
+        switchTab("orders");
+
+        // Simulate Cashfree Drop Checkout
+        alert(`Cashfree Gateway Initialized for Order ${orderKey} (₹${svc.price}). Use the Webhook Simulator in Account tab to mark as PAID.`);
+      });
+    };
+
+    // ORDERS LISTING & ACCOUNT STATS
+    window.renderUserOrders = function() {
+      const tbody = document.getElementById("user-orders-body");
+      if (!currentUser || !tbody) return;
+
+      const userOrders = Object.values(allOrders)
+        .filter(o => o.userEmail === currentUser.email)
+        .sort((a,b) => b.createdAt - a.createdAt);
+
+      if (!userOrders.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-slate-400">No orders placed yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = userOrders.map(o => `
+        <tr>
+          <td class="py-3.5 px-4 font-mono text-slate-500 dark:text-slate-400 text-[11px] font-bold">${o.orderId}</td>
+          <td class="py-3.5 px-4 font-medium text-slate-900 dark:text-white">${o.serviceTitle}</td>
+          <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 truncate max-w-xs">${o.targetLink}</td>
+          <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">₹${o.amount}</td>
+          <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${o.status==='PAID'||o.status==='COMPLETED'?'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400':'bg-amber-500/10 text-amber-600 dark:text-amber-400'}">${o.status}</span></td>
+          <td class="py-3.5 px-4 text-right text-slate-400">${new Date(o.createdAt).toLocaleDateString()}</td>
+        </tr>
+      `).join('');
+    };
+
+    window.refreshOrders = function() {
+      window.renderUserOrders();
+      window.updateAccountStats();
+    };
+
+    window.updateAccountStats = function() {
+      if (!currentUser) return;
+      const userOrders = Object.values(allOrders).filter(o => o.userEmail === currentUser.email);
+      const totalSpent = userOrders.reduce((acc, o) => acc + (Number(o.amount) || 0), 0);
+
+      const totalElem = document.getElementById("account-total-orders");
+      const spentElem = document.getElementById("account-total-spent");
+
+      if (totalElem) totalElem.innerText = userOrders.length;
+      if (spentElem) spentElem.innerText = `₹${totalSpent}`;
+    };
+
+    // WEBHOOK SIMULATOR MODAL
+    window.openWebhookModal = function() {
+      const select = document.getElementById("webhook-order-select");
+      if (!select) return;
+
+      const pendingOrders = Object.entries(allOrders).filter(([k, v]) => v.userEmail === currentUser.email && v.status === "PENDING");
+
+      if (!pendingOrders.length) {
+        select.innerHTML = `<option value="">No pending orders available</option>`;
+      } else {
+        select.innerHTML = pendingOrders.map(([key, item]) => `
+          <option value="${key}">${item.orderId} - ${item.serviceTitle} (₹${item.amount})</option>
+        `).join('');
+      }
+
+      document.getElementById("webhook-modal").classList.remove("hidden");
+    };
+
+    window.closeWebhookModal = function() {
+      document.getElementById("webhook-modal").classList.add("hidden");
+    };
+
+    window.dispatchWebhookEvent = function() {
+      const select = document.getElementById("webhook-order-select");
+      const key = select.value;
+
+      if (!key) {
+        alert("Please select a pending order to simulate payment.");
+        return;
+      }
+
+      update(ref(db, `orders/${key}`), {
+        status: "PAID",
+        paidAt: Date.now()
+      }).then(() => {
+        alert("Cashfree Webhook simulation successful! Order marked as PAID.");
+        closeWebhookModal();
+        switchTab("orders");
+      });
+    };
+  </script>
+
+</body>
+</html>
