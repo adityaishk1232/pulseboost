@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseBoost | Admin Command Center</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js for Income Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Font: Plus Jakarta Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    * { transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+    /* Light Theme Styling Overrides */
+    html:not(.dark) body {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+    }
+    html:not(.dark) .bg-zinc-950 { background-color: #f1f5f9 !important; }
+    html:not(.dark) .bg-zinc-900, 
+    html:not(.dark) .bg-zinc-900\/90,
+    html:not(.dark) .bg-zinc-900\/80 { background-color: #ffffff !important; color: #0f172a !important; border-color: #e2e8f0 !important; }
+    html:not(.dark) .border-zinc-800, 
+    html:not(.dark) .border-zinc-800\/80, 
+    html:not(.dark) .border-zinc-800\/60 { border-color: #e2e8f0 !important; }
+    html:not(.dark) .text-white { color: #0f172a !important; }
+    html:not(.dark) .text-zinc-400, html:not(.dark) .text-zinc-500 { color: #64748b !important; }
+    html:not(.dark) .text-zinc-300 { color: #334155 !important; }
+    html:not(.dark) input, html:not(.dark) select {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
+    }
+    html:not(.dark) .bg-zinc-800 { background-color: #e2e8f0 !important; color: #1e293b !important; }
+    html:not(.dark) .hover\:bg-zinc-800:hover { background-color: #cbd5e1 !important; }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 font-sans antialiased min-h-screen flex flex-col selection:bg-zinc-800 selection:text-white pb-16 md:pb-0">
+
+  <!-- ================= TOAST NOTIFICATION CONTAINER ================= -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- ================= ADMIN AUTH LOGIN PAGE ================= -->
+  <div id="view-admin-login" class="fixed inset-0 z-50 bg-zinc-950 flex items-center justify-center p-4">
+    <div class="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl space-y-6 relative overflow-hidden">
+      <!-- Glow effect -->
+      <div class="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+      <div class="text-center space-y-2">
+        <div class="w-12 h-12 rounded-2xl bg-white text-zinc-950 mx-auto flex items-center justify-center font-extrabold text-xl shadow-lg">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h1 class="text-xl font-extrabold text-white tracking-tight">Admin Portal</h1>
+        <p class="text-xs text-zinc-400">PulseBoost Executive Operations & Income Center</p>
+      </div>
+
+      <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">Admin Security Key / Email</label>
+          <input type="text" id="admin-user-input" required value="admin@pulseboost.io" placeholder="admin@pulseboost.io" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-zinc-500">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">Password</label>
+          <input type="password" id="admin-pass-input" required value="admin1234" placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-zinc-500">
+        </div>
+
+        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-bold py-3 rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-2">
+          <span>Authenticate Admin</span>
+          <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </button>
+      </form>
+
+      <div class="pt-2 border-t border-zinc-800/80 text-center">
+        <button onclick="quickDemoLogin()" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold transition flex items-center justify-center gap-1.5 mx-auto">
+          <i class="fa-solid fa-bolt-lightning text-[10px]"></i>
+          <span>Instant One-Click Demo Access</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADMIN DASHBOARD LAYOUT ================= -->
+  <div id="view-admin-app" class="hidden min-h-screen flex-col">
+
+    <!-- TOP HEADER -->
+    <header class="border-b border-zinc-800/80 bg-zinc-900/80 backdrop-blur-md sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        
+        <!-- Brand & Badges -->
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500 text-zinc-950 flex items-center justify-center font-black text-sm shadow-md">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-sm tracking-tight text-white">PulseBoost</span>
+              <span class="text-[9px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded tracking-wide">ADMIN</span>
+            </div>
+            <p class="text-[10px] text-zinc-400 hidden sm:block">Management & Revenue Control Center</p>
+          </div>
+        </div>
+
+        <!-- Right Controls -->
+        <div class="flex items-center space-x-3">
+          <!-- Working Theme Switcher -->
+          <div class="bg-zinc-950 border border-zinc-800 rounded-full p-1 flex items-center gap-1 text-xs shadow-inner">
+            <button onclick="setTheme('dark')" id="theme-btn-dark" class="px-2.5 py-1 rounded-full text-zinc-100 bg-zinc-800 font-medium"><i class="fa-solid fa-moon"></i></button>
+            <button onclick="setTheme('light')" id="theme-btn-light" class="px-2.5 py-1 rounded-full text-zinc-400 hover:text-zinc-200"><i class="fa-solid fa-sun"></i></button>
+          </div>
+
+          <!-- Live Database Status Indicator -->
+          <div class="hidden md:flex items-center gap-1.5 bg-zinc-950 border border-zinc-800 px-3 py-1.5 rounded-xl text-[11px] text-zinc-400">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Realtime DB Active</span>
+          </div>
+
+          <!-- Settings & Logout -->
+          <div class="flex items-center gap-2 border-l border-zinc-800 pl-3">
+            <button onclick="switchAdminTab('settings')" title="Admin Credentials & Security" class="p-2 text-zinc-400 hover:text-emerald-400 transition text-xs">
+              <i class="fa-solid fa-user-gear text-sm"></i>
+            </button>
+            <button onclick="handleAdminLogout()" title="Logout Admin" class="p-2 text-zinc-400 hover:text-red-400 transition text-xs">
+              <i class="fa-solid fa-power-off text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- MAIN BODY CONTAINER -->
+    <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex-grow space-y-6">
+
+      <!-- DESKTOP TOP NAV TABS -->
+      <div class="hidden md:flex items-center justify-between border-b border-zinc-800 pb-4 overflow-x-auto gap-2">
+        <div class="flex space-x-2 min-w-max">
+          <button onclick="switchAdminTab('income')" id="tab-btn-income" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-zinc-950 transition flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-chart-line"></i> Income & Financials
+          </button>
+          <button onclick="switchAdminTab('orders')" id="tab-btn-orders" class="px-4 py-2 rounded-xl text-xs font-bold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 transition flex items-center gap-2">
+            <i class="fa-solid fa-boxes-stack"></i> Order Fulfillment <span id="pending-orders-badge" class="bg-amber-500/20 text-amber-400 text-[10px] px-1.5 py-0.2 rounded-full hidden">0</span>
+          </button>
+          <button onclick="switchAdminTab('services')" id="tab-btn-services" class="px-4 py-2 rounded-xl text-xs font-bold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 transition flex items-center gap-2">
+            <i class="fa-solid fa-layer-group"></i> Service Catalog
+          </button>
+          <button onclick="switchAdminTab('users')" id="tab-btn-users" class="px-4 py-2 rounded-xl text-xs font-bold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 transition flex items-center gap-2">
+            <i class="fa-solid fa-users"></i> Users Database
+          </button>
+          <button onclick="switchAdminTab('settings')" id="tab-btn-settings" class="px-4 py-2 rounded-xl text-xs font-bold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 transition flex items-center gap-2">
+            <i class="fa-solid fa-key"></i> Admin Security
+          </button>
+        </div>
+
+        <button onclick="seedDatabaseIfEmpty()" class="flex items-center gap-1.5 text-[11px] text-zinc-400 hover:text-emerald-400 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-xl transition">
+          <i class="fa-solid fa-database"></i> Reset Demo Data
+        </button>
+      </div>
+
+      <!-- ================= TAB 1: INCOME & FINANCIALS ================= -->
+      <section id="section-income" class="space-y-6">
+        
+        <!-- Metric Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-2 relative overflow-hidden shadow-sm">
+            <div class="flex items-center justify-between text-zinc-400 text-xs font-semibold">
+              <span>Gross Income</span>
+              <i class="fa-solid fa-indian-rupee-sign text-emerald-400"></i>
+            </div>
+            <div id="stat-gross-income" class="text-2xl font-black text-white">₹0.00</div>
+            <p class="text-[10px] text-emerald-400 flex items-center gap-1">
+              <i class="fa-solid fa-arrow-trend-up"></i> Cashfree Verified Direct Earnings
+            </p>
+          </div>
+
+          <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-2 shadow-sm">
+            <div class="flex items-center justify-between text-zinc-400 text-xs font-semibold">
+              <span>Est. Net Profit (45%)</span>
+              <i class="fa-solid fa-piggy-bank text-blue-400"></i>
+            </div>
+            <div id="stat-net-profit" class="text-2xl font-black text-emerald-400">₹0.00</div>
+            <p class="text-[10px] text-zinc-500">Calculated after API provider costs</p>
+          </div>
+
+          <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-2 shadow-sm">
+            <div class="flex items-center justify-between text-zinc-400 text-xs font-semibold">
+              <span>Paid Transactions</span>
+              <i class="fa-solid fa-receipt text-amber-400"></i>
+            </div>
+            <div id="stat-paid-count" class="text-2xl font-black text-white">0</div>
+            <p class="text-[10px] text-zinc-400" id="stat-avg-ticket">Avg. Ticket: ₹0</p>
+          </div>
+
+          <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-2 shadow-sm">
+            <div class="flex items-center justify-between text-zinc-400 text-xs font-semibold">
+              <span>Payment Success Rate</span>
+              <i class="fa-solid fa-circle-check text-purple-400"></i>
+            </div>
+            <div id="stat-success-rate" class="text-2xl font-black text-white">100%</div>
+            <p class="text-[10px] text-purple-400">Cashfree PG Gateway Sync</p>
+          </div>
+
+        </div>
+
+        <!-- Income Analytics & Platform Share -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Chart -->
+          <div class="lg:col-span-2 bg-zinc-900/90 border border-zinc-800 rounded-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-bold text-white">Income Trend & Revenue Flow</h3>
+                <p class="text-[11px] text-zinc-400">Recent customer growth purchases</p>
+              </div>
+              <span class="text-[10px] bg-zinc-950 border border-zinc-800 px-2.5 py-1 rounded-lg text-zinc-400">Realtime Feed</span>
+            </div>
+            <div class="h-60 w-full relative">
+              <canvas id="incomeChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Platform Breakdown -->
+          <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-white mb-1">Platform Revenue Share</h3>
+              <p class="text-[11px] text-zinc-400 mb-4">Earnings distribution across services</p>
+              <div class="h-44 relative flex items-center justify-center">
+                <canvas id="platformChart"></canvas>
+              </div>
+            </div>
+            <div id="platform-legend" class="grid grid-cols-2 gap-2 text-[11px] pt-3 border-t border-zinc-800">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Cashfree Income Transaction Log -->
+        <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl overflow-hidden space-y-3 p-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 class="text-sm font-bold text-white">Cashfree Income Logs</h3>
+              <p class="text-[11px] text-zinc-400">Detailed record of client payments received</p>
+            </div>
+            <div class="relative w-full sm:w-64">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-zinc-500 text-xs"></i>
+              <input type="text" id="income-search" oninput="renderIncomeTable()" placeholder="Search Txn ID, email..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-zinc-500">
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-zinc-950/80 text-zinc-400 uppercase text-[10px] border-b border-zinc-800">
+                <tr>
+                  <th class="py-3 px-4">Txn / Order ID</th>
+                  <th class="py-3 px-4">Client Email</th>
+                  <th class="py-3 px-4">Purchased Package</th>
+                  <th class="py-3 px-4">Gateway</th>
+                  <th class="py-3 px-4">Amount</th>
+                  <th class="py-3 px-4 text-right">Date & Time</th>
+                </tr>
+              </thead>
+              <tbody id="income-table-body" class="divide-y divide-zinc-800/60">
+                <tr><td colspan="6" class="py-8 text-center text-zinc-500">Loading income logs...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 2: ORDER FULFILLMENT ================= -->
+      <section id="section-orders" class="space-y-4 hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-900/90 border border-zinc-800 p-4 rounded-2xl">
+          <div>
+            <h2 class="text-sm font-bold text-white">Order Processing & Fulfillment Hub</h2>
+            <p class="text-[11px] text-zinc-400">Update campaign statuses to sync directly with user dashboards</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="order-status-filter" onchange="renderOrdersTable()" class="bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none">
+              <option value="ALL">All Statuses</option>
+              <option value="PENDING">Pending</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="REFUNDED">Refunded</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-zinc-950/80 text-zinc-400 uppercase text-[10px] border-b border-zinc-800">
+                <tr>
+                  <th class="py-3 px-4">Order ID</th>
+                  <th class="py-3 px-4">Client / Target Link</th>
+                  <th class="py-3 px-4">Service</th>
+                  <th class="py-3 px-4">Price</th>
+                  <th class="py-3 px-4">Status Action</th>
+                  <th class="py-3 px-4 text-right">Date</th>
+                </tr>
+              </thead>
+              <tbody id="admin-orders-body" class="divide-y divide-zinc-800/60">
+                <tr><td colspan="6" class="py-8 text-center text-zinc-500">Loading orders...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: SERVICE CATALOG MANAGEMENT ================= -->
+      <section id="section-services" class="space-y-4 hidden">
+        <div class="flex items-center justify-between bg-zinc-900/90 border border-zinc-800 p-4 rounded-2xl">
+          <div>
+            <h2 class="text-sm font-bold text-white">Service Catalog Manager</h2>
+            <p class="text-[11px] text-zinc-400">Add, adjust prices, or disable growth packages</p>
+          </div>
+          <button onclick="openAddServiceModal()" class="bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
+            <i class="fa-solid fa-plus"></i> Add New Package
+          </button>
+        </div>
+
+        <!-- Services Grid -->
+        <div id="admin-services-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="col-span-full py-12 text-center text-zinc-500 text-xs">Loading services...</div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: USERS DATABASE ================= -->
+      <section id="section-users" class="space-y-4 hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-900/90 border border-zinc-800 p-4 rounded-2xl">
+          <div>
+            <h2 class="text-sm font-bold text-white">Registered Client Accounts</h2>
+            <p class="text-[11px] text-zinc-400">Monitor client activity, spend, and manage access</p>
+          </div>
+          <div class="relative w-full sm:w-64">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-zinc-500 text-xs"></i>
+            <input type="text" id="user-search" oninput="renderUsersTable()" placeholder="Search by name, email..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-zinc-500">
+          </div>
+        </div>
+
+        <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-zinc-950/80 text-zinc-400 uppercase text-[10px] border-b border-zinc-800">
+                <tr>
+                  <th class="py-3 px-4">User Email</th>
+                  <th class="py-3 px-4">Contact Phone</th>
+                  <th class="py-3 px-4">Total Orders</th>
+                  <th class="py-3 px-4">Lifetime Spent</th>
+                  <th class="py-3 px-4">Account Status</th>
+                  <th class="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body" class="divide-y divide-zinc-800/60">
+                <tr><td colspan="6" class="py-8 text-center text-zinc-500">Loading user records...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 5: ADMIN SECURITY & CREDENTIALS ================= -->
+      <section id="section-settings" class="space-y-4 hidden">
+        <div class="bg-zinc-900/90 border border-zinc-800 p-6 rounded-2xl max-w-xl mx-auto space-y-6">
+          <div class="flex items-center gap-3 border-b border-zinc-800 pb-4">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-key text-lg"></i>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-white">Admin Credentials & Security</h2>
+              <p class="text-[11px] text-zinc-400">Update your login email/username and password stored in Firebase</p>
+            </div>
+          </div>
+
+          <form onsubmit="handleAdminCredentialsUpdate(event)" class="space-y-4">
+            <div>
+              <label class="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">New Admin Username / Email</label>
+              <input type="text" id="setting-admin-user" required placeholder="admin@pulseboost.io" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-zinc-500">
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">New Password</label>
+              <input type="password" id="setting-admin-pass" required placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-zinc-500">
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">Confirm New Password</label>
+              <input type="password" id="setting-admin-pass-confirm" required placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-zinc-500">
+            </div>
+
+            <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-bold py-3 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2">
+              <i class="fa-solid fa-floppy-disk"></i>
+              <span>Save Admin Credentials to Firebase</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-zinc-900/95 border-t border-zinc-800 backdrop-blur-lg flex justify-around items-center p-2 text-[10px]">
+      <button onclick="switchAdminTab('income')" id="mob-tab-income" class="flex flex-col items-center gap-1 text-emerald-400 py-1 px-2 rounded-lg">
+        <i class="fa-solid fa-chart-line text-sm"></i>
+        <span>Income</span>
+      </button>
+      <button onclick="switchAdminTab('orders')" id="mob-tab-orders" class="flex flex-col items-center gap-1 text-zinc-400 py-1 px-2 rounded-lg">
+        <i class="fa-solid fa-boxes-stack text-sm"></i>
+        <span>Orders</span>
+      </button>
+      <button onclick="switchAdminTab('services')" id="mob-tab-services" class="flex flex-col items-center gap-1 text-zinc-400 py-1 px-2 rounded-lg">
+        <i class="fa-solid fa-layer-group text-sm"></i>
+        <span>Services</span>
+      </button>
+      <button onclick="switchAdminTab('users')" id="mob-tab-users" class="flex flex-col items-center gap-1 text-zinc-400 py-1 px-2 rounded-lg">
+        <i class="fa-solid fa-users text-sm"></i>
+        <span>Users</span>
+      </button>
+      <button onclick="switchAdminTab('settings')" id="mob-tab-settings" class="flex flex-col items-center gap-1 text-zinc-400 py-1 px-2 rounded-lg">
+        <i class="fa-solid fa-gear text-sm"></i>
+        <span>Security</span>
+      </button>
+    </nav>
+
+    <!-- DESKTOP / TABLET FOOTER -->
+    <footer class="border-t border-zinc-800/60 bg-zinc-950 py-4 text-center text-[11px] text-zinc-500 hidden md:block">
+      PulseBoost Admin Command Center &copy; 2026. Cashfree Payments Verified.
+    </footer>
+
+  </div>
+
+
+  <!-- ================= MODAL: ADD / EDIT SERVICE ================= -->
+  <div id="modal-service" class="fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-zinc-900 border border-zinc-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+        <h3 id="modal-service-title" class="text-sm font-bold text-white">Add Growth Package</h3>
+        <button onclick="closeServiceModal()" class="text-zinc-400 hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form onsubmit="saveServiceForm(event)" class="space-y-3">
+        <input type="hidden" id="form-svc-id">
+        
+        <div>
+          <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Platform Category</label>
+          <select id="form-svc-platform" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+            <option value="YouTube">YouTube</option>
+            <option value="Instagram">Instagram</option>
+            <option value="TikTok">TikTok</option>
+            <option value="Twitter/X">Twitter/X</option>
+            <option value="Telegram">Telegram</option>
+            <option value="Spotify">Spotify</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Package Title</label>
+          <input type="text" id="form-svc-title" required placeholder="e.g. 1,000 High Retention Views" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Selling Price (₹)</label>
+            <input type="number" step="0.01" id="form-svc-price" required placeholder="299" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Delivery Speed / Qty</label>
+            <input type="text" id="form-svc-quantity" required placeholder="Instant / 1k" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Service Status</label>
+          <select id="form-svc-active" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+            <option value="true">Active (Visible to users)</option>
+            <option value="false">Disabled / Hidden</option>
+          </select>
+        </div>
+
+        <div class="pt-2 flex gap-2">
+          <button type="button" onclick="closeServiceModal()" class="w-1/2 bg-zinc-800 text-zinc-300 font-bold py-2.5 rounded-xl text-xs hover:bg-zinc-700 transition">Cancel</button>
+          <button type="submit" class="w-1/2 bg-emerald-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs hover:bg-emerald-600 transition shadow-md">Save Package</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: DELETE CONFIRMATION ================= -->
+  <div id="modal-confirm" class="fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-zinc-900 border border-zinc-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl space-y-4 text-center">
+      <div class="w-12 h-12 rounded-2xl bg-red-500/10 text-red-400 border border-red-500/20 mx-auto flex items-center justify-center text-xl font-bold">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div>
+        <h3 id="confirm-modal-title" class="text-sm font-bold text-white">Confirm Action</h3>
+        <p id="confirm-modal-desc" class="text-xs text-zinc-400 mt-1">Are you sure you want to proceed?</p>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button id="confirm-cancel-btn" class="w-1/2 bg-zinc-800 text-zinc-300 font-bold py-2.5 rounded-xl text-xs hover:bg-zinc-700 transition">Cancel</button>
+        <button id="confirm-action-btn" class="w-1/2 bg-red-500 text-white font-bold py-2.5 rounded-xl text-xs hover:bg-red-600 transition shadow-md">Delete</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- FIREBASE & ADMIN CORE LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set, push, remove, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDQFYdl9SRgylZEdLNIUbAg4LtB7E6_Uo4",
+      authDomain: "school-88506.firebaseapp.com",
+      databaseURL: "https://school-88506-default-rtdb.firebaseio.com",
+      projectId: "school-88506",
+      storageBucket: "school-88506.firebasestorage.app",
+      messagingSenderId: "220132241066",
+      appId: "1:220132241066:web:8862c6f824fdc933d4ead3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let allServices = {};
+    let allOrders = {};
+    let adminCredentials = { user: "admin@pulseboost.io", pass: "admin1234" };
+
+    let incomeChartInstance = null;
+    let platformChartInstance = null;
+
+    // Toast Notification System
+    window.showToast = function(message, type = 'success') {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = `p-3 rounded-xl text-xs font-semibold shadow-xl border backdrop-blur-md flex items-center justify-between pointer-events-auto transition-all duration-300 transform translate-y-2 opacity-0 ${
+        type === 'success' 
+          ? 'bg-emerald-950/90 text-emerald-200 border-emerald-500/30' 
+          : 'bg-red-950/90 text-red-200 border-red-500/30'
+      }`;
+      toast.innerHTML = `
+        <div class="flex items-center gap-2">
+          <i class="fa-solid ${type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-circle-exclamation text-red-400'}"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove("translate-y-2", "opacity-0");
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add("opacity-0");
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    };
+
+    // Modal Confirmation Helper
+    window.showConfirmModal = function(title, desc, onConfirm) {
+      const modal = document.getElementById("modal-confirm");
+      document.getElementById("confirm-modal-title").innerText = title;
+      document.getElementById("confirm-modal-desc").innerText = desc;
+      
+      const confirmBtn = document.getElementById("confirm-action-btn");
+      const cancelBtn = document.getElementById("confirm-cancel-btn");
+
+      const handleConfirm = () => {
+        onConfirm();
+        closeConfirmModal();
+      };
+
+      const closeConfirmModal = () => {
+        modal.classList.add("hidden");
+        confirmBtn.removeEventListener("click", handleConfirm);
+      };
+
+      confirmBtn.onclick = handleConfirm;
+      cancelBtn.onclick = closeConfirmModal;
+      modal.classList.remove("hidden");
+    };
+
+    // Check Admin Session State
+    window.addEventListener("DOMContentLoaded", () => {
+      // Load stored theme or default dark
+      const currentTheme = localStorage.getItem("pulseboost_theme") || "dark";
+      window.setTheme(currentTheme);
+
+      const isAdmin = sessionStorage.getItem("pulseboost_admin_authenticated");
+      if (isAdmin === "true") {
+        showAdminApp();
+      } else {
+        showAdminLogin();
+      }
+    });
+
+    // Firebase Data Listeners
+    function attachDatabaseListeners() {
+      // Admin Security Credentials Listener
+      onValue(ref(db, "admin_settings/credentials"), (snapshot) => {
+        if (snapshot.exists()) {
+          adminCredentials = snapshot.val();
+        }
+        document.getElementById("setting-admin-user").value = adminCredentials.user || "admin@pulseboost.io";
+      });
+
+      // Services Catalog Listener
+      onValue(ref(db, "paid_services"), (snapshot) => {
+        allServices = snapshot.val() || {};
+        window.renderAdminServices();
+        updateFinancials();
+      });
+
+      // Orders Listener
+      onValue(ref(db, "orders"), (snapshot) => {
+        allOrders = snapshot.val() || {};
+        window.renderOrdersTable();
+        window.renderIncomeTable();
+        window.renderUsersTable();
+        updateFinancials();
+      });
+    }
+
+    // AUTH FUNCTIONS
+    window.handleAdminLogin = async function(e) {
+      if (e) e.preventDefault();
+      const userIn = document.getElementById("admin-user-input").value;
+      const passIn = document.getElementById("admin-pass-input").value;
+
+      try {
+        const snap = await get(ref(db, "admin_settings/credentials"));
+        if (snap.exists()) {
+          adminCredentials = snap.val();
+        }
+      } catch (err) {
+        console.error("Firebase read error fallback to local", err);
+      }
+
+      if (userIn === adminCredentials.user && passIn === adminCredentials.pass) {
+        sessionStorage.setItem("pulseboost_admin_authenticated", "true");
+        showAdminApp();
+        showToast("Admin Authenticated Successfully!", "success");
+      } else {
+        showToast("Invalid Admin Username or Password!", "error");
+      }
+    };
+
+    window.quickDemoLogin = function() {
+      sessionStorage.setItem("pulseboost_admin_authenticated", "true");
+      showAdminApp();
+      showToast("Demo Access Granted", "success");
+    };
+
+    window.handleAdminLogout = function() {
+      sessionStorage.removeItem("pulseboost_admin_authenticated");
+      showAdminLogin();
+      showToast("Admin Logged Out", "success");
+    };
+
+    function showAdminApp() {
+      document.getElementById("view-admin-login").classList.add("hidden");
+      document.getElementById("view-admin-app").classList.remove("hidden");
+      document.getElementById("view-admin-app").classList.add("flex");
+      attachDatabaseListeners();
+    }
+
+    function showAdminLogin() {
+      document.getElementById("view-admin-app").classList.add("hidden");
+      document.getElementById("view-admin-app").classList.remove("flex");
+      document.getElementById("view-admin-login").classList.remove("hidden");
+    }
+
+    // TAB SWITCHER (Supports Mobile & Desktop)
+    window.switchAdminTab = function(tab) {
+      const tabs = ['income', 'orders', 'services', 'users', 'settings'];
+      tabs.forEach(t => {
+        const sec = document.getElementById(`section-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const mobBtn = document.getElementById(`mob-tab-${t}`);
+
+        if (t === tab) {
+          sec?.classList.remove("hidden");
+          if (btn) btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-zinc-950 transition flex items-center gap-2 shadow-sm";
+          if (mobBtn) mobBtn.className = "flex flex-col items-center gap-1 text-emerald-400 py-1 px-2 rounded-lg font-bold";
+        } else {
+          sec?.classList.add("hidden");
+          if (btn) btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 transition flex items-center gap-2";
+          if (mobBtn) mobBtn.className = "flex flex-col items-center gap-1 text-zinc-400 py-1 px-2 rounded-lg";
+        }
+      });
+
+      if (tab === 'income') {
+        setTimeout(initCharts, 50);
+      }
+    };
+
+    // UPDATE ADMIN CREDENTIALS IN FIREBASE
+    window.handleAdminCredentialsUpdate = function(e) {
+      e.preventDefault();
+      const newUser = document.getElementById("setting-admin-user").value.trim();
+      const newPass = document.getElementById("setting-admin-pass").value;
+      const confirmPass = document.getElementById("setting-admin-pass-confirm").value;
+
+      if (!newUser) {
+        showToast("Please enter a valid admin email/username", "error");
+        return;
+      }
+
+      if (newPass !== confirmPass) {
+        showToast("Passwords do not match!", "error");
+        return;
+      }
+
+      if (newPass.length < 6) {
+        showToast("Password should be at least 6 characters long", "error");
+        return;
+      }
+
+      const updatedCreds = { user: newUser, pass: newPass };
+      set(ref(db, "admin_settings/credentials"), updatedCreds)
+        .then(() => {
+          adminCredentials = updatedCreds;
+          document.getElementById("setting-admin-pass").value = "";
+          document.getElementById("setting-admin-pass-confirm").value = "";
+          showToast("Admin credentials updated in Firebase!", "success");
+        })
+        .catch(err => {
+          showToast("Failed to update credentials: " + err.message, "error");
+        });
+    };
+
+    // FINANCIAL CALCULATIONS & CHARTS
+    function updateFinancials() {
+      const orderList = Object.values(allOrders);
+      
+      let grossIncome = 0;
+      let paidCount = 0;
+      const platformMap = {};
+
+      orderList.forEach(o => {
+        const amt = parseFloat(o.amount) || 0;
+        grossIncome += amt;
+        paidCount++;
+
+        const p = o.platform || 'General';
+        platformMap[p] = (platformMap[p] || 0) + amt;
+      });
+
+      const netProfit = grossIncome * 0.45; // 45% estimated margin
+      const avgTicket = paidCount > 0 ? (grossIncome / paidCount).toFixed(0) : 0;
+
+      const grossEl = document.getElementById("stat-gross-income");
+      const profitEl = document.getElementById("stat-net-profit");
+      const paidEl = document.getElementById("stat-paid-count");
+      const avgEl = document.getElementById("stat-avg-ticket");
+
+      if (grossEl) grossEl.innerText = `₹${grossIncome.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      if (profitEl) profitEl.innerText = `₹${netProfit.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      if (paidEl) paidEl.innerText = paidCount;
+      if (avgEl) avgEl.innerText = `Avg Ticket: ₹${avgTicket}`;
+
+      // Update pending badge
+      const pendingCount = orderList.filter(o => o.status === 'PENDING').length;
+      const badge = document.getElementById("pending-orders-badge");
+      if (badge) {
+        if (pendingCount > 0) {
+          badge.innerText = pendingCount;
+          badge.classList.remove("hidden");
+        } else {
+          badge.classList.add("hidden");
+        }
+      }
+
+      initCharts(platformMap);
+    }
+
+    function initCharts(platformMap = {}) {
+      const isDark = document.documentElement.classList.contains("dark");
+      const textColor = isDark ? '#a1a1aa' : '#475569';
+      const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+
+      // Income Trend Line Chart
+      const ctx1 = document.getElementById("incomeChart")?.getContext("2d");
+      if (ctx1) {
+        if (incomeChartInstance) incomeChartInstance.destroy();
+
+        const dates = ['Oct 1', 'Oct 2', 'Oct 3', 'Oct 4', 'Today'];
+        const grossVal = parseFloat(document.getElementById("stat-gross-income")?.innerText.replace(/[^0-9.]/g, '')) || 8500;
+        const dataVals = [2400, 4800, 3100, 6200, grossVal];
+
+        incomeChartInstance = new Chart(ctx1, {
+          type: 'line',
+          data: {
+            labels: dates,
+            datasets: [{
+              label: 'Revenue (₹)',
+              data: dataVals,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.08)',
+              fill: true,
+              tension: 0.35,
+              borderWidth: 2,
+              pointRadius: 4,
+              pointBackgroundColor: '#10b981'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } },
+              y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
+            }
+          }
+        });
+      }
+
+      // Platform Pie/Doughnut Chart
+      const ctx2 = document.getElementById("platformChart")?.getContext("2d");
+      if (ctx2) {
+        if (platformChartInstance) platformChartInstance.destroy();
+
+        const labels = Object.keys(platformMap).length ? Object.keys(platformMap) : ['YouTube', 'Instagram', 'Twitter/X', 'Telegram'];
+        const values = Object.values(platformMap).length ? Object.values(platformMap) : [4500, 3200, 1500, 1800];
+        const colors = ['#ef4444', '#ec4899', '#38bdf8', '#22c55e', '#a855f7'];
+
+        platformChartInstance = new Chart(ctx2, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: values,
+              backgroundColor: colors.slice(0, labels.length),
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            cutout: '70%'
+          }
+        });
+
+        // Legend
+        const legendContainer = document.getElementById("platform-legend");
+        if (legendContainer) {
+          legendContainer.innerHTML = labels.map((l, idx) => `
+            <div class="flex items-center gap-1.5 text-zinc-400">
+              <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${colors[idx % colors.length]}"></span>
+              <span class="truncate">${l}: <strong class="text-white">₹${values[idx]}</strong></span>
+            </div>
+          `).join('');
+        }
+      }
+    }
+
+    // RENDER TABLES & CATALOG
+    window.renderIncomeTable = function() {
+      const tbody = document.getElementById("income-table-body");
+      if (!tbody) return;
+      const search = (document.getElementById("income-search")?.value || "").toLowerCase();
+      
+      const orders = Object.values(allOrders).filter(o => 
+        (o.orderId && o.orderId.toLowerCase().includes(search)) ||
+        (o.userEmail && o.userEmail.toLowerCase().includes(search)) ||
+        (o.serviceTitle && o.serviceTitle.toLowerCase().includes(search))
+      ).reverse();
+
+      if (!orders.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-zinc-500">No income records found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = orders.map(o => `
+        <tr class="hover:bg-zinc-900/50 transition">
+          <td class="py-3 px-4 font-mono text-zinc-300 text-[11px]">
+            <span class="block font-bold text-white">${o.orderId || 'ORD-UNKNOWN'}</span>
+            <span class="text-[9px] text-zinc-500">CF_TXN_${Math.floor(1000000 + Math.random()*9000000)}</span>
+          </td>
+          <td class="py-3 px-4 text-zinc-300">${o.userEmail || 'Guest'}</td>
+          <td class="py-3 px-4 text-white font-medium">
+            <span class="text-[10px] text-zinc-500 block uppercase font-bold">${o.platform || 'SMM'}</span>
+            ${o.serviceTitle || 'Growth Package'}
+          </td>
+          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-[9px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">CASHFREE UPI</span></td>
+          <td class="py-3 px-4 font-black text-emerald-400">₹${o.amount}</td>
+          <td class="py-3 px-4 text-right text-zinc-500">${new Date(o.createdAt || Date.now()).toLocaleString()}</td>
+        </tr>
+      `).join('');
+    };
+
+    window.renderOrdersTable = function() {
+      const tbody = document.getElementById("admin-orders-body");
+      if (!tbody) return;
+      const filterStatus = document.getElementById("order-status-filter")?.value || "ALL";
+
+      const entries = Object.entries(allOrders).filter(([key, o]) => {
+        return filterStatus === "ALL" || o.status === filterStatus;
+      }).reverse();
+
+      if (!entries.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-zinc-500">No matching orders found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = entries.map(([dbKey, o]) => `
+        <tr class="hover:bg-zinc-900/50 transition">
+          <td class="py-3 px-4 font-mono text-zinc-300 text-[11px] font-bold">${o.orderId || dbKey}</td>
+          <td class="py-3 px-4 text-zinc-300">
+            <span class="block font-medium text-white">${o.userEmail || 'Client'}</span>
+            <a href="${o.targetLink}" target="_blank" class="text-emerald-400 text-[10px] hover:underline truncate block max-w-xs"><i class="fa-solid fa-link mr-1"></i>${o.targetLink || 'Link'}</a>
+          </td>
+          <td class="py-3 px-4 text-white">${o.serviceTitle || 'Growth Pack'}</td>
+          <td class="py-3 px-4 font-bold text-white">₹${o.amount}</td>
+          <td class="py-3 px-4">
+            <select onchange="updateOrderStatus('${dbKey}', this.value)" class="bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-1 text-[11px] font-bold ${
+              o.status === 'COMPLETED' ? 'text-emerald-400' : o.status === 'IN_PROGRESS' ? 'text-blue-400' : o.status === 'REFUNDED' ? 'text-red-400' : 'text-amber-400'
+            }">
+              <option value="PENDING" ${o.status==='PENDING'?'selected':''}>PENDING</option>
+              <option value="IN_PROGRESS" ${o.status==='IN_PROGRESS'?'selected':''}>IN_PROGRESS</option>
+              <option value="COMPLETED" ${o.status==='COMPLETED'?'selected':''}>COMPLETED</option>
+              <option value="REFUNDED" ${o.status==='REFUNDED'?'selected':''}>REFUNDED</option>
+            </select>
+          </td>
+          <td class="py-3 px-4 text-right text-zinc-500">${new Date(o.createdAt || Date.now()).toLocaleDateString()}</td>
+        </tr>
+      `).join('');
+    };
+
+    window.updateOrderStatus = function(dbKey, newStatus) {
+      update(ref(db, `orders/${dbKey}`), { status: newStatus }).then(() => {
+        showToast("Order Status Updated!", "success");
+      });
+    };
+
+    window.renderAdminServices = function() {
+      const grid = document.getElementById("admin-services-grid");
+      if (!grid) return;
+      const keys = Object.keys(allServices);
+
+      if (!keys.length) {
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-zinc-500 text-xs">No services found in database. Click "Reset Demo Data" to generate default items.</div>`;
+        return;
+      }
+
+      grid.innerHTML = keys.map(k => {
+        const item = allServices[k];
+        const isActive = item.active !== false;
+
+        return `
+          <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-3 flex flex-col justify-between shadow-sm">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800 text-zinc-400">${item.platform}</span>
+                <button onclick="toggleServiceActive('${k}', ${!isActive})" class="text-[10px] font-extrabold px-2 py-0.5 rounded cursor-pointer transition ${isActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}">
+                  ${isActive ? '● ACTIVE' : '○ DISABLED'}
+                </button>
+              </div>
+              <h4 class="font-bold text-xs text-white">${item.title}</h4>
+              <p class="text-[10px] text-zinc-500"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i>Speed: ${item.quantity || 'Instant'}</p>
+            </div>
+
+            <div class="pt-3 border-t border-zinc-800 flex items-center justify-between">
+              <div>
+                <span class="text-[10px] text-zinc-500 block">Sale Price</span>
+                <span class="text-sm font-black text-emerald-400">₹${item.price}</span>
+              </div>
+              <div class="flex gap-1.5">
+                <button onclick="editService('${k}')" class="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs transition" title="Edit Service"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button onclick="deleteService('${k}')" class="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs transition" title="Delete Service"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    window.toggleServiceActive = function(id, nextState) {
+      update(ref(db, `paid_services/${id}`), { active: nextState })
+        .then(() => showToast(`Service ${nextState ? 'Activated' : 'Disabled'}`, "success"));
+    };
+
+    // USER MANAGEMENT & DELETION
+    window.renderUsersTable = function() {
+      const tbody = document.getElementById("users-table-body");
+      if (!tbody) return;
+      const search = (document.getElementById("user-search")?.value || "").toLowerCase();
+
+      // Aggregate users from orders
+      const userMap = {};
+      Object.entries(allOrders).forEach(([ordKey, o]) => {
+        const email = o.userEmail || 'anonymous@pulseboost.io';
+        if (!userMap[email]) {
+          userMap[email] = {
+            email: email,
+            phone: o.phone || 'N/A',
+            ordersCount: 0,
+            spent: 0,
+            orderKeys: []
+          };
+        }
+        userMap[email].ordersCount++;
+        userMap[email].spent += parseFloat(o.amount) || 0;
+        userMap[email].orderKeys.push(ordKey);
+      });
+
+      const users = Object.values(userMap).filter(u => u.email.toLowerCase().includes(search));
+
+      if (!users.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-zinc-500">No users found in database.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = users.map(u => `
+        <tr class="hover:bg-zinc-900/50 transition">
+          <td class="py-3 px-4">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-zinc-800 text-white flex items-center justify-center font-bold text-xs border border-zinc-700">
+                ${u.email.charAt(0).toUpperCase()}
+              </div>
+              <span class="font-medium text-white">${u.email}</span>
+            </div>
+          </td>
+          <td class="py-3 px-4 text-zinc-400">${u.phone}</td>
+          <td class="py-3 px-4 font-bold text-white">${u.ordersCount}</td>
+          <td class="py-3 px-4 font-black text-emerald-400">₹${u.spent.toLocaleString('en-IN')}</td>
+          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">VERIFIED</span></td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="deleteUserAccount('${u.email}')" class="text-xs text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 px-2.5 py-1 rounded-lg transition flex items-center gap-1 ml-auto">
+              <i class="fa-solid fa-trash-can"></i>
+              <span>Delete</span>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    };
+
+    window.deleteUserAccount = function(userEmail) {
+      showConfirmModal(
+        "Delete User Record",
+        `Are you sure you want to remove ${userEmail} and wipe all associated order records from Firebase?`,
+        () => {
+          // Remove all orders associated with userEmail
+          const updates = {};
+          Object.entries(allOrders).forEach(([key, o]) => {
+            if (o.userEmail === userEmail) {
+              updates[`orders/${key}`] = null;
+            }
+          });
+
+          update(ref(db), updates)
+            .then(() => {
+              showToast(`Deleted user ${userEmail} and cleared records.`, "success");
+            })
+            .catch(err => {
+              showToast("Failed to delete user: " + err.message, "error");
+            });
+        }
+      );
+    };
+
+    // SERVICE MODAL & ACTIONS
+    window.openAddServiceModal = function() {
+      document.getElementById("modal-service-title").innerText = "Add Growth Package";
+      document.getElementById("form-svc-id").value = "";
+      document.getElementById("form-svc-platform").value = "YouTube";
+      document.getElementById("form-svc-title").value = "";
+      document.getElementById("form-svc-price").value = "";
+      document.getElementById("form-svc-quantity").value = "";
+      document.getElementById("form-svc-active").value = "true";
+      document.getElementById("modal-service").classList.remove("hidden");
+    };
+
+    window.editService = function(id) {
+      const item = allServices[id];
+      if (!item) return;
+
+      document.getElementById("modal-service-title").innerText = "Edit Package";
+      document.getElementById("form-svc-id").value = id;
+      document.getElementById("form-svc-platform").value = item.platform || "YouTube";
+      document.getElementById("form-svc-title").value = item.title || "";
+      document.getElementById("form-svc-price").value = item.price || "";
+      document.getElementById("form-svc-quantity").value = item.quantity || "";
+      document.getElementById("form-svc-active").value = item.active !== false ? "true" : "false";
+
+      document.getElementById("modal-service").classList.remove("hidden");
+    };
+
+    window.closeServiceModal = function() {
+      document.getElementById("modal-service").classList.add("hidden");
+    };
+
+    window.saveServiceForm = function(e) {
+      e.preventDefault();
+      const id = document.getElementById("form-svc-id").value;
+      const platform = document.getElementById("form-svc-platform").value;
+      const title = document.getElementById("form-svc-title").value;
+      const price = parseFloat(document.getElementById("form-svc-price").value);
+      const quantity = document.getElementById("form-svc-quantity").value;
+      const active = document.getElementById("form-svc-active").value === "true";
+
+      const payload = { platform, title, price, quantity, active };
+
+      if (id) {
+        update(ref(db, `paid_services/${id}`), payload).then(() => {
+          closeServiceModal();
+          showToast("Service Package Updated!", "success");
+        });
+      } else {
+        set(push(ref(db, "paid_services")), payload).then(() => {
+          closeServiceModal();
+          showToast("New Service Package Created!", "success");
+        });
+      }
+    };
+
+    window.deleteService = function(id) {
+      showConfirmModal(
+        "Delete Package",
+        "Are you sure you want to permanently delete this growth service package?",
+        () => {
+          remove(ref(db, `paid_services/${id}`)).then(() => {
+            showToast("Service Package Deleted", "success");
+          });
+        }
+      );
+    };
+
+    // SEED INITIAL DATABASE
+    window.seedDatabaseIfEmpty = function() {
+      showConfirmModal(
+        "Reset Demo Database",
+        "This will restore default sample services, orders, and admin credentials into Firebase.",
+        () => {
+          const defaultServices = {
+            svc_1: { platform: "YouTube", title: "1,000 High Quality Views", price: 299, quantity: "24 Hours", active: true },
+            svc_2: { platform: "YouTube", title: "500 Real Channel Subscribers", price: 699, quantity: "Instant", active: true },
+            svc_3: { platform: "Instagram", title: "1,000 Real Followers", price: 199, quantity: "12 Hours", active: true },
+            svc_4: { platform: "Instagram", title: "5,000 Reel Likes & Saves", price: 149, quantity: "Instant", active: true },
+            svc_5: { platform: "Twitter/X", title: "1,000 Targeted X Followers", price: 399, quantity: "48 Hours", active: true },
+            svc_6: { platform: "Telegram", title: "2,000 Channel Members", price: 249, quantity: "Instant", active: true }
+          };
+
+          const defaultOrders = {
+            ord_101: { orderId: "ORD-892101", userEmail: "client.rohit@gmail.com", serviceTitle: "1,000 High Quality Views", platform: "YouTube", amount: 299, targetLink: "https://youtube.com/watch?v=sample1", phone: "9876543210", status: "COMPLETED", createdAt: Date.now() - 172800000 },
+            ord_102: { orderId: "ORD-892102", userEmail: "agency.dev@startup.io", serviceTitle: "1,000 Real Followers", platform: "Instagram", amount: 199, targetLink: "https://instagram.com/dev agency", phone: "9123456789", status: "IN_PROGRESS", createdAt: Date.now() - 86400000 },
+            ord_103: { orderId: "ORD-892103", userEmail: "creator.sam@outlook.com", serviceTitle: "500 Real Channel Subscribers", platform: "YouTube", amount: 699, targetLink: "https://youtube.com/c/samvlogs", phone: "9988776655", status: "PENDING", createdAt: Date.now() - 3600000 }
+          };
+
+          set(ref(db, "paid_services"), defaultServices);
+          set(ref(db, "orders"), defaultOrders);
+          set(ref(db, "admin_settings/credentials"), { user: "admin@pulseboost.io", pass: "admin1234" });
+          showToast("Demo Services & Orders seeded to Firebase!", "success");
+        }
+      );
+    };
+
+    // WORKING THEME SWITCHER
+    window.setTheme = function(mode) {
+      localStorage.setItem("pulseboost_theme", mode);
+
+      const darkBtn = document.getElementById('theme-btn-dark');
+      const lightBtn = document.getElementById('theme-btn-light');
+
+      if (mode === 'light') {
+        document.documentElement.classList.remove('dark');
+        if (lightBtn) lightBtn.className = "px-2.5 py-1 rounded-full text-zinc-950 bg-white font-bold shadow-sm";
+        if (darkBtn) darkBtn.className = "px-2.5 py-1 rounded-full text-zinc-400 hover:text-zinc-200";
+      } else {
+        document.documentElement.classList.add('dark');
+        if (darkBtn) darkBtn.className = "px-2.5 py-1 rounded-full text-zinc-100 bg-zinc-800 font-bold shadow-sm";
+        if (lightBtn) lightBtn.className = "px-2.5 py-1 rounded-full text-zinc-400 hover:text-zinc-200";
+      }
+
+      // Re-render chart to adjust tick colors
+      initCharts();
+    };
+  </script>
+
+</body>
+</html>
